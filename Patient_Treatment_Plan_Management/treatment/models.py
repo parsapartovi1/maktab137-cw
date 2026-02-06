@@ -1,6 +1,7 @@
 from django.db import models
 from Patient.models import Patient
-from choises import TreatmentState
+from treatment.choices import TreatmentState, Treatmenttype , Treatmentstatus
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class TreatmentPlan(models.Model):
@@ -63,3 +64,47 @@ class TreatmentPlan(models.Model):
 
     def __str__(self):
         return str(self.Title) + "-" + str(self.patient)
+
+
+
+class Treatmentsession(models.model):
+
+    treatment_plan = models.ForeignKey(
+        "TreatmentPlan",
+        verbose_name = "treatmentplan",
+        help_text = "Treatment plan according to this session",
+        on_delete = models.CASECADE
+    )
+
+
+    session_date = models.DateTimeField(
+        verbose_name = "session_date",
+        help_text = "Date and time of your meeting"
+
+    )
+
+    duration = models.TimeField(
+        verbose_name = "duration",
+        help_text = "Duration of your session",
+        validators = [MinValueValidator(1 , message= "The session duration is at least one minute."),
+                      MaxValueValidator(60, message = "The meeting duration is more than one hour.")],
+
+        default = 60
+        
+    )
+
+    session_type = models.CharField(
+        max_length = 30,
+        choices= Treatmenttype.choices,
+        verbose_name = "session_type",
+        help_text = "Choose your treatment session type"
+
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices = Treatmentstatus.choices,
+        verbose_name = "status",
+        help_text = "Patient condition"
+        
+    )
